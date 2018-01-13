@@ -5,7 +5,9 @@ import {
   MatButtonModule,
   MatIconModule,
   MatSidenavModule,
-  MatListModule
+  MatListModule,
+  MatTableModule,
+  MatCardModule
 } from '@angular/material';
 
 export const SHARED_MATERIAL_MODULES = [
@@ -13,7 +15,9 @@ export const SHARED_MATERIAL_MODULES = [
   MatButtonModule,
   MatIconModule,
   MatSidenavModule,
-  MatListModule
+  MatListModule,
+  MatCardModule,
+  MatTableModule
 ];
 
 @NgModule({
