@@ -12,3 +12,9 @@ export interface Customer {
   statusCode: string;
   lastContactDate: string; // ISO format date
 }
+
+export interface CustomerSaveResult {
+  success: boolean;
+  messages: string[];
+  item: Customer;
+}
