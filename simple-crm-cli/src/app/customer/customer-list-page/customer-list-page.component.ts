@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Customer } from '../customer.model';
 import { MatTableDataSource } from '@angular/material';
+import { CustomerService } from '../customer.service';
+import { SimpleDataSource } from '../../shared/simple-datasource';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
   selector: 'crm-customer-list-page',
@@ -8,35 +11,14 @@ import { MatTableDataSource } from '@angular/material';
   styleUrls: ['./customer-list-page.component.scss']
 })
 export class CustomerListPageComponent implements OnInit {
-  customers: Customer[] = [
-    {
-      customerId: 1,
-      firstName: 'John',
-      lastName: 'Smith',
-      phoneNumber: '314-555-1234',
-      emailAddress: 'john@nexulacademy.com',
-      statusCode: 'Prospect',
-      preferredContactMethod: 'phone',
-      lastContactDate: new Date().toISOString()
-    },
-    {
-      customerId: 1,
-      firstName: 'Tory',
-      lastName: 'Amos',
-      phoneNumber: '314-555-9873',
-      emailAddress: 'tory@example.com',
-      statusCode: 'Prospect',
-      preferredContactMethod: 'email',
-      lastContactDate: new Date().toISOString()
-    }
-  ];
-  dataSource: MatTableDataSource<Customer>;
+  customers$: Observable<Customer[]>;
+  dataSource: SimpleDataSource<Customer>;
   displayColumns = ['name', 'phone', 'email', 'status'];
 
-  constructor() { }
+  constructor(private customerService: CustomerService) {}
 
   ngOnInit() {
-    this.dataSource = new MatTableDataSource(this.customers);
+    this.customers$ = this.customerService.search('');
+    this.dataSource = new SimpleDataSource(this.customers$);
   }
-
 }
