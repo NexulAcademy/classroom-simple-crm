@@ -7,8 +7,10 @@ import {
   MatSidenavModule,
   MatListModule,
   MatTableModule,
-  MatCardModule
+  MatCardModule,
+  MatDialogModule
 } from '@angular/material';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 export const SHARED_MATERIAL_MODULES = [
   MatToolbarModule,
@@ -17,7 +19,9 @@ export const SHARED_MATERIAL_MODULES = [
   MatSidenavModule,
   MatListModule,
   MatCardModule,
-  MatTableModule
+  MatTableModule,
+  MatDialogModule,
+  FlexLayoutModule
 ];
 
 @NgModule({
