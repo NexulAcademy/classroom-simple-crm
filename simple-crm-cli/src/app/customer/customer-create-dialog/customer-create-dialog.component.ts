@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Customer } from '../customer.model';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'crm-customer-create-dialog',
@@ -8,9 +9,22 @@ import { Customer } from '../customer.model';
   styleUrls: ['./customer-create-dialog.component.scss']
 })
 export class CustomerCreateDialogComponent implements OnInit {
+  detailForm: FormGroup;
 
-  constructor(public dialogRef: MatDialogRef<CustomerCreateDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: Customer | null) { }
+  constructor(private fb: FormBuilder,
+    public dialogRef: MatDialogRef<CustomerCreateDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: Customer | null) {
+      this.detailForm = this.fb.group({
+        firstName: [''],
+        lastName: [''],
+        phoneNumber: [''],
+        emailAddress: [''],
+        preferredContactMethod: ['email']
+      });
+      if (this.data) {
+        this.detailForm.patchValue(this.data);
+      }
+    }
 
   ngOnInit() {
   }

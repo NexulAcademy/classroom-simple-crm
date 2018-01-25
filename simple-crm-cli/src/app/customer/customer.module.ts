@@ -9,11 +9,13 @@ import { CustomerService } from './customer.service';
 import { CustomerMockService } from './customer-mock.service';
 import { environment } from '../../environments/environment';
 import { CustomerCreateDialogComponent } from './customer-create-dialog/customer-create-dialog.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   imports: [
     CommonModule,
     HttpClientModule,
+    ReactiveFormsModule,
     CustomerRoutingModule,
     SharedImportsModule
   ],
