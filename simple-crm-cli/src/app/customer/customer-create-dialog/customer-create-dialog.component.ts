@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { Customer } from '../customer.model';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'crm-customer-create-dialog',
@@ -15,10 +15,10 @@ export class CustomerCreateDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<CustomerCreateDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: Customer | null) {
       this.detailForm = this.fb.group({
-        firstName: [''],
-        lastName: [''],
+        firstName: ['', Validators.required],
+        lastName: ['', Validators.required],
         phoneNumber: [''],
-        emailAddress: [''],
+        emailAddress: ['', [Validators.required, Validators.email]],
         preferredContactMethod: ['email']
       });
       if (this.data) {
@@ -34,8 +34,10 @@ export class CustomerCreateDialogComponent implements OnInit {
   }
 
   save() {
-    // TODO: get form data and pass as parameter to close
-    const customer = { ...this.data };
+    if (!this.detailForm.valid) {
+      return;
+    }
+    const customer = { ...this.data, ...this.detailForm.value };
     this.dialogRef.close(customer);
   }
 
