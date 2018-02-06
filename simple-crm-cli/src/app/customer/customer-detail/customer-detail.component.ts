@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { CustomerService } from '../customer.service';
+import { Customer } from '../customer.model';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
   selector: 'crm-customer-detail',
@@ -8,11 +11,18 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class CustomerDetailComponent implements OnInit {
   customerId: number;
+  customer: Customer;
 
-  constructor(private route: ActivatedRoute) { }
+  constructor(
+    private customerService: CustomerService,
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit() {
-    this.customerId = this.route.snapshot.params['id'];
+    this.customerId = +this.route.snapshot.params['id'];
+    this.customerService.get(this.customerId)
+      .subscribe(cust => {
+        this.customer = cust;
+      });
   }
-
 }

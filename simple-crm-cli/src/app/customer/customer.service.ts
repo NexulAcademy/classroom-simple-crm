@@ -7,6 +7,10 @@ import { Observable } from 'rxjs/Observable';
 export class CustomerService {
   constructor(public http: HttpClient) { }
 
+  get(customerId: number) {
+    return this.http.get<Customer>('/api/customer/' + customerId);
+  }
+
   search(term: string): Observable<Customer[]> {
     return this.http.get<Customer[]>('/api/customer/search?term=' + term);
   }
