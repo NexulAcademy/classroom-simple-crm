@@ -22,11 +22,19 @@
       </ng-container>
       <ng-container matColumnDef="status">
         <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
-        <mat-cell *matCellDef="let row"> {{row.statusCode}} </mat-cell>
+        <mat-cell *matCellDef="let row">
+          <span>{{row.statusCode}}</span>
+          <span fxFlex></span>
+          <span>
+            <button mat-icon-button color="primary">
+              <mat-icon aria-label="View customer detail">edit</mat-icon>
+            </button>
+          </span>
+        </mat-cell>
       </ng-container>
 
       <mat-header-row *matHeaderRowDef="displayColumns"></mat-header-row>
-      <mat-row *matRowDef="let row; columns: displayColumns;"></mat-row>
+      <mat-row *matRowDef="let row; columns: displayColumns;" (click)="openDetail(row)"></mat-row>
     </mat-table>
   </mat-card>
 </div>

@@ -5,6 +5,7 @@ import { SimpleDataSource } from '../../shared/simple-datasource';
 import { Observable } from 'rxjs/Observable';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { CustomerCreateDialogComponent } from '../customer-create-dialog/customer-create-dialog.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'crm-customer-list-page',
@@ -18,6 +19,7 @@ export class CustomerListPageComponent implements OnInit {
 
   constructor(
     private customerService: CustomerService,
+    private router: Router,
     public dialog: MatDialog
   ) {}
 
@@ -40,5 +42,11 @@ export class CustomerListPageComponent implements OnInit {
       this.customerService.save(result);
       this.search();
     });
+  }
+
+  openDetail(item: Customer) {
+    if (item) {
+      this.router.navigate([`./customer/${item.customerId}`]);
+    }
   }
 }
