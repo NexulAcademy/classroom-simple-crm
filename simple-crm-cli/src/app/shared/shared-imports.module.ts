@@ -10,7 +10,8 @@ import {
   MatCardModule,
   MatDialogModule,
   MatInputModule,
-  MatSelectModule
+  MatSelectModule,
+  MatSnackBarModule
 } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
@@ -25,6 +26,7 @@ export const SHARED_MATERIAL_MODULES = [
   MatDialogModule,
   MatInputModule,
   MatSelectModule,
+  MatSnackBarModule,
   FlexLayoutModule
 ];
 

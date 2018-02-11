@@ -1,6 +1,40 @@
-<p>
-  customer-detail {{customerId}} works!
-</p>
-<pre>
-  {{customer | json}}
-</pre>
+<div class="content-column">
+  <mat-card>
+      <form [formGroup]="detailForm" novalidate fxLayoutGap="10px">
+        <section fxFlex="50" fxFlex.lt-md="100">
+          <mat-form-field>
+            <input matInput placeholder="First Name" formControlName="firstName" name="firstName">
+            <mat-error>First name is required</mat-error>
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput placeholder="Last Name" formControlName="lastName" name="lastName">
+            <mat-error>Last name is required</mat-error>
+          </mat-form-field>
+        </section>
+        <section fxFlex="50" fxFlex.lt-md="100">
+          <mat-form-field>
+            <mat-select placeholder="Contact Method" formControlName="preferredContactMethod" name="preferredContactMethod">
+              <mat-option value="email">Email</mat-option>
+              <mat-option value="phone">Phone</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput placeholder="Phone Number" formControlName="phoneNumber" name="phoneNumber">
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput #emailAddress placeholder="Email Address" formControlName="emailAddress" name="emailAddress">
+            <mat-error *ngIf="!emailAddress.value">Email address is required</mat-error>
+            <mat-error *ngIf="emailAddress.value && !emailAddress.valid">Invalid email address</mat-error>
+          </mat-form-field>
+        </section>
+      </form>
+    <mat-card-actions [align]="'end'">
+      <button mat-raised-button (click)="save()" color="accent">SAVE</button>
+    </mat-card-actions>
+  </mat-card>
+  <mat-card>
+    <p>
+      TODO: Add customer call history here
+    </p>
+  </mat-card>
+</div>
