@@ -18,7 +18,11 @@
       </ng-container>
       <ng-container matColumnDef="email">
         <mat-header-cell *matHeaderCellDef> Email </mat-header-cell>
-        <mat-cell *matCellDef="let row"> {{row.emailAddress}} </mat-cell>
+        <mat-cell *matCellDef="let row"> {{row.emailAddress | lowercase}} </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="lastContactDate">
+        <mat-header-cell *matHeaderCellDef> Contacted </mat-header-cell>
+        <mat-cell *matCellDef="let row"> {{row.lastContactDate | date:'MMM d, yyyy'}} </mat-cell>
       </ng-container>
       <ng-container matColumnDef="status">
         <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
