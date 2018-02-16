@@ -11,6 +11,7 @@ import { environment } from '../../environments/environment';
 import { CustomerCreateDialogComponent } from './customer-create-dialog/customer-create-dialog.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CustomerDetailComponent } from './customer-detail/customer-detail.component';
+import { StatusIconPipe } from './status-icon.pipe';
 
 @NgModule({
   imports: [
@@ -23,7 +24,8 @@ import { CustomerDetailComponent } from './customer-detail/customer-detail.compo
   declarations: [
     CustomerListPageComponent,
     CustomerCreateDialogComponent,
-    CustomerDetailComponent
+    CustomerDetailComponent,
+    StatusIconPipe
   ],
   providers: [
     {

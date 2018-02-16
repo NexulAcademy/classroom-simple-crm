@@ -8,6 +8,12 @@
       </button>
     </mat-card-title>
     <mat-table [dataSource]="dataSource">
+      <ng-container matColumnDef="icon" item-width="7px">
+        <mat-header-cell *matHeaderCellDef fxFlex="40px"> </mat-header-cell>
+        <mat-cell *matCellDef="let row" fxFlex="40px">
+          <mat-icon matListIcon [svgIcon]="row.statusCode | statusIcon"></mat-icon>
+        </mat-cell>
+      </ng-container>
       <ng-container matColumnDef="name">
         <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
         <mat-cell *matCellDef="let row"> {{row.firstName}} {{row.lastName}} </mat-cell>
@@ -28,14 +34,20 @@
         <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
         <mat-cell *matCellDef="let row">
           <span>{{row.statusCode}}</span>
-          <span fxFlex></span>
-          <span>
-            <button mat-icon-button color="primary">
-              <mat-icon aria-label="View customer detail">edit</mat-icon>
-            </button>
-          </span>
         </mat-cell>
       </ng-container>
+
+      <ng-container matColumnDef="action">
+          <mat-header-cell *matHeaderCellDef> </mat-header-cell>
+          <mat-cell *matCellDef="let row">
+            <span fxFlex></span>
+            <span>
+              <button mat-icon-button color="primary">
+                <mat-icon aria-label="View customer detail">edit</mat-icon>
+              </button>
+            </span>
+          </mat-cell>
+        </ng-container>
 
       <mat-header-row *matHeaderRowDef="displayColumns"></mat-header-row>
       <mat-row *matRowDef="let row; columns: displayColumns;" (click)="openDetail(row)"></mat-row>

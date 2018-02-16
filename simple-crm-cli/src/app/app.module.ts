@@ -7,6 +7,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { SharedImportsModule } from './shared/shared-imports.module';
 import { CustomerModule } from './customer/customer.module';
+import { AppIconsService } from './app-icons.service';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,12 @@ import { CustomerModule } from './customer/customer.module';
     SharedImportsModule,
     CustomerModule
   ],
-  providers: [],
+  providers: [
+    AppIconsService
+  ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+  // simply passing in the icon service, instantiates it and registers its icons
+  constructor(iconService: AppIconsService) {}
+ }
