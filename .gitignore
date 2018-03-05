@@ -9,8 +9,7 @@
 /out-tsc
 
 # dependencies
-/node_modules
-Nexul.Academy.MvcWeb/node_modules
+/simple-crm-cli/node_modules
 
 # IDEs and editors
 /.idea
@@ -80,9 +79,9 @@ Thumbs.db
 *.vspscc
 .builds
 *.dotCover
-Nexul.Academy/obj/
-Nexul.Academy.SqlDbServices/obj/
-Nexul.Academy.MvcWeb/obj/
-Nexul.Academy/bin/
-Nexul.Academy.SqlDbServices/bin/
-Nexul.Academy.MvcWeb/bin/
+Classroom.SimpleCRM/obj/
+Classroom.SimpleCRM.SqlDbServices/obj/
+Classroom.SimpleCRM.MvcWeb/obj/
+Classroom.SimpleCRM/bin/
+Classroom.SimpleCRM.SqlDbServices/bin/
+Classroom.SimpleCRM.MvcWeb/bin/
