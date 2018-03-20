@@ -1,4 +1,6 @@
-﻿namespace Classroom.SimpleCRM
+﻿using System.Collections.Generic;
+
+namespace Classroom.SimpleCRM
 {
     public interface ICustomerData
     {
@@ -8,6 +10,17 @@
         /// <param name="customerId"></param>
         /// <returns></returns>
         Customer Get(int customerId);
+        /// <summary>
+        /// Gets paged records for a given CRM account and status.
+        /// </summary>
+        /// <param name="accountId">The CRM account id.</param>
+        /// <param name="status">The desired status filter</param>
+        /// <param name="pageIndex">The zero based page number</param>
+        /// <param name="take">The max number of records to take (page size)</param>
+        /// <param name="orderBy">The property name to order by and optional direction. (null for default order)</param>
+        /// <returns></returns>
+        List<Customer> GetByStatus(int accountId, CustomerStatus status, 
+            int pageIndex, int take, string orderBy);
         /// <summary>
         /// Adds a new item, to be saved on next commit.
         /// </summary>
