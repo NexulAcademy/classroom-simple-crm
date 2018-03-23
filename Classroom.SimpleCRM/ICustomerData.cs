@@ -11,7 +11,7 @@ namespace Classroom.SimpleCRM
         /// <returns></returns>
         Customer Get(int customerId);
         /// <summary>
-        /// Gets paged records for a given CRM account and status.
+        /// Gets paged and sorted records for a given CRM account and status.
         /// </summary>
         /// <param name="accountId">The CRM account id.</param>
         /// <param name="status">The desired status filter</param>
