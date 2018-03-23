@@ -9,10 +9,20 @@ namespace Classroom.SimpleCRM.SqlDbServices
     public class SqlCustomerData : ICustomerData
     {
         private readonly CrmDbContext context;
+        private ColumnMapping mappingCustomer;
 
         public SqlCustomerData(CrmDbContext context)
         {
             this.context = context;
+            mappingCustomer = new ColumnMapping(new[] {
+                new ColumnMappingValue("FirstName"),
+                new ColumnMappingValue("LastName"),
+                new ColumnMappingValue("Name", new[] { "LastName", "FirstName" }), //custom sort option
+                new ColumnMappingValue("EmailAddress"),
+                new ColumnMappingValue("PhoneNumber"),
+                new ColumnMappingValue("Status"),
+                new ColumnMappingValue("LastContactDate")
+            }); //TODO: create an overload to build base mappings using reflection and allow custom additions
         }
 
         public Customer Get(int customerId)
@@ -21,22 +31,9 @@ namespace Classroom.SimpleCRM.SqlDbServices
         }
         public List<Customer> GetByStatus(int accountId, CustomerStatus status, int pageIndex, int take, string orderBy)
         {
-            var sortableFields = new string[] { "FIRSTNAME", "LASTNAME", "EMAILADDRESS", "PHONENUMBER", "STATUS", "LASTCONTACTDATE" };
-            var fields = (orderBy ?? "").Split(new[]{','}, StringSplitOptions.RemoveEmptyEntries);
-            foreach(var field in fields)
-            {
-                var x = field.Trim().ToUpper();
-                var parts = x.Split(' ');
-                if (parts.Length > 2)
-                    throw new ArgumentException("Invalid sort option " + x);
-                if (parts.Length > 1 && parts[1].ToUpper() != "DESC" && parts[1].ToUpper() != "ASC")
-                    throw new ArgumentException("Invalid sort direction " + x);
-                if (!sortableFields.Contains(x))
-                    throw new ArgumentException("Invalid sort field " + x);
-            } //all sort requested fields are valid.
             return context.Customer
                 .Where(x => x.Status == status)
-                .OrderBy(orderBy) //validated above to nothing unexpected, this is OK now
+                .ApplySort(orderBy, mappingCustomer)
                 .Skip(pageIndex * take)
                 .Take(take)
                 .ToList();
