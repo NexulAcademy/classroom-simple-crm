@@ -1,5 +1,9 @@
-﻿using System;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Classroom.SimpleCRM.WebApi.Models.Customer;
+using System;
+using System.Globalization;
+using Classroom.SimpleCRM.WebApi.Models.Customers;
 
 namespace Classroom.SimpleCRM.WebApi.ApiControllers
 {
@@ -22,7 +26,9 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
         public IActionResult GetAll()
         {
             var customers = _customerData.GetAll(0, 0, 50, "");
-            return Ok(customers);
+
+            var models = customers.Select(c => new CustomerDisplayViewModel(c));
+            return Ok(models);
         }
         /// <summary>
         /// Retrieves a single customer by id
@@ -38,6 +44,7 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
             {
                 return NotFound();
             }
+            var model = new CustomerDisplayViewModel(customer);
             return Ok(customer);
         }
         [HttpPost("")] //  ./api/customers
