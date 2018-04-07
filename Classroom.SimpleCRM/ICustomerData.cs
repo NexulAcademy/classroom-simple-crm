@@ -10,6 +10,8 @@ namespace Classroom.SimpleCRM
         /// <param name="customerId"></param>
         /// <returns></returns>
         Customer Get(int customerId);
+        List<Customer> GetAll(int accountId,
+            int pageIndex, int take, string orderBy);
         /// <summary>
         /// Gets paged and sorted records for a given CRM account and status.
         /// </summary>
