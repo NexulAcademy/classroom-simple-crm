@@ -4,6 +4,8 @@ using Classroom.SimpleCRM.WebApi.Models.Customer;
 using System;
 using System.Globalization;
 using Classroom.SimpleCRM.WebApi.Models.Customers;
+using Classroom.SimpleCRM.WebApi.Models;
+using Classroom.SimpleCRM.WebApi.Filters;
 
 namespace Classroom.SimpleCRM.WebApi.ApiControllers
 {
@@ -54,6 +56,10 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
             {
                 return BadRequest();
             }
+            if (!ModelState.IsValid)
+            {
+                return new ValidationFailedResult(ModelState);
+            }
 
             var customer = new Customer
             {
@@ -74,6 +80,10 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
             if (model == null)
             {
                 return BadRequest();
+            }
+            if (!ModelState.IsValid)
+            {
+                return new ValidationFailedResult(ModelState);
             }
 
             var customer = _customerData.Get(id);
