@@ -1,10 +1,7 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using Classroom.SimpleCRM.WebApi.Models.Customer;
 using System;
-using System.Globalization;
 using Classroom.SimpleCRM.WebApi.Models.Customers;
-using Classroom.SimpleCRM.WebApi.Models;
 using Classroom.SimpleCRM.WebApi.Filters;
 
 namespace Classroom.SimpleCRM.WebApi.ApiControllers
@@ -25,9 +22,17 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
         /// <returns></returns>
         [Route("")] //  ./api/customers
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult GetAll([FromQuery]int page = 1, [FromQuery]int take = 50)
         {
-            var customers = _customerData.GetAll(0, 0, 50, "");
+            page = Math.Max(1, page); //correct bad value automatically.
+            //or
+            if (take > 250)
+            {   //tell the consumer the requested query cannot be fulfilled.
+                return new ValidationFailedResult("A request can only take maximum of 250 items.");
+            }
+            // which is better? You decide. Discuss. Does it matter if the input is optional?
+
+            var customers = _customerData.GetAll(0, page - 1, take, "");
 
             var models = customers.Select(c => new CustomerDisplayViewModel(c));
             return Ok(models);
