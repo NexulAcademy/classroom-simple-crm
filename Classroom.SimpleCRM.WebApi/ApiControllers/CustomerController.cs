@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using Classroom.SimpleCRM.WebApi.Models.Customers;
 using Classroom.SimpleCRM.WebApi.Filters;
+using Classroom.SimpleCRM.WebApi.Models;
+using Newtonsoft.Json;
 
 namespace Classroom.SimpleCRM.WebApi.ApiControllers
 {
@@ -10,10 +12,13 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
     public class CustomerController : Controller
     {
         private readonly ICustomerData _customerData;
+        private readonly IUrlHelper _urlHelper;
 
-        public CustomerController(ICustomerData customerData)
+        public CustomerController(ICustomerData customerData,
+            IUrlHelper urlHelper)
         {
             _customerData = customerData;
+            _urlHelper = urlHelper;
         }
 
         /// <summary>
@@ -21,7 +26,7 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
         /// </summary>
         /// <returns></returns>
         [Route("")] //  ./api/customers
-        [HttpGet]
+        [HttpGet(Name = "GetCustomers")]
         public IActionResult GetAll([FromQuery]int page = 1, [FromQuery]int take = 50)
         {
             page = Math.Max(1, page); //correct bad value automatically.
@@ -34,8 +39,24 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
 
             var customers = _customerData.GetAll(0, page - 1, take, "");
 
+            var pagination = new PaginationModel
+            {
+                Previous = page == 1 ? null : CreateCustomersResourceUri(page-1, take),
+                Next = CreateCustomersResourceUri(page+1, take)
+            };
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(pagination));
+
             var models = customers.Select(c => new CustomerDisplayViewModel(c));
             return Ok(models);
+        }
+
+        private string CreateCustomersResourceUri(int page, int take)
+        {
+            return _urlHelper.Link("GetCustomers", new
+            {
+                take = take,
+                page = page
+            });
         }
         /// <summary>
         /// Retrieves a single customer by id

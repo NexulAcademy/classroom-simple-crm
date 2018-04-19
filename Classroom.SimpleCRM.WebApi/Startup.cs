@@ -11,6 +11,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Classroom.SimpleCRM.WebApi.Data;
 using Classroom.SimpleCRM.WebApi.Models;
 using Classroom.SimpleCRM.WebApi.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Classroom.SimpleCRM.SqlDbServices;
 
 namespace Classroom.SimpleCRM.WebApi
 {
@@ -28,6 +32,8 @@ namespace Classroom.SimpleCRM.WebApi
         {
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<CrmDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -35,6 +41,13 @@ namespace Classroom.SimpleCRM.WebApi
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
+            services.AddScoped<ICustomerData, SqlCustomerData>();
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            services.AddScoped<IUrlHelper, UrlHelper>(factory =>
+            {
+                var context = factory.GetService<IActionContextAccessor>().ActionContext;
+                return new UrlHelper(context);
+            });
 
             services.AddMvc();
         }
