@@ -29,13 +29,14 @@ namespace Classroom.SimpleCRM.SqlDbServices
         {
             return context.Customer.FirstOrDefault(x => x.CustomerId == customerId );
         }
-        public List<Customer> GetAll(int accountId, int pageIndex, int take, string orderBy)
+        public List<Customer> Get(int accountId, CustomerListParameters options)
         {
             return context.Customer
                 //TODO: after auth is added .Where(x => x.AccountId == accountId)
-                .ApplySort(orderBy, mappingCustomer)
-                .Skip(pageIndex * take)
-                .Take(take)
+                .ApplySort(options.OrderBy, mappingCustomer)
+                //TODO: add filter and search
+                .Skip((options.Page-1) * options.Take)
+                .Take(options.Take)
                 .ToList();
         }
         public List<Customer> GetByStatus(int accountId, CustomerStatus status, int pageIndex, int take, string orderBy)

@@ -27,17 +27,18 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
         /// <returns></returns>
         [Route("")] //  ./api/customers
         [HttpGet(Name = "GetCustomers")]
-        public IActionResult GetAll([FromQuery]int page = 1, [FromQuery]int take = 50)
+        public IActionResult GetCustomers([FromQuery]CustomerListParameters resourceParameters)
         {
-            page = Math.Max(1, page); //correct bad value automatically.
-            //or
-            if (take > 250)
-            {   //tell the consumer the requested query cannot be fulfilled.
+            if (resourceParameters.Page < 1)
+            {
+                return new ValidationFailedResult("Page must be 1 or greater.");
+            }
+            if (resourceParameters.Take > 250)
+            {
                 return new ValidationFailedResult("A request can only take maximum of 250 items.");
             }
-            // which is better? You decide. Discuss. Does it matter if the input is optional?
 
-            var customers = _customerData.GetAll(0, page - 1, take, "");
+            var customers = _customerData.Get(0, resourceParameters);
 
             var pagination = new PaginationModel
             {
@@ -50,12 +51,13 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
             return Ok(models);
         }
 
-        private string CreateCustomersResourceUri(int page, int take)
+        private string CreateCustomersResourceUri(CustomerListParameters resourceParameters, int pageAdjust)
         {
             return _urlHelper.Link("GetCustomers", new
             {
-                take = take,
-                page = page
+                take = resourceParameters.Take,
+                page = resourceParameters.Page + pageAdjust,
+                orderBy = resourceParameters.OrderBy,
             });
         }
         /// <summary>
