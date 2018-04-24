@@ -31,11 +31,24 @@ namespace Classroom.SimpleCRM.SqlDbServices
         }
         public List<Customer> Get(int accountId, CustomerListParameters options)
         {
-            return context.Customer
+            var sortedResults = context.Customer
                 //TODO: after auth is added .Where(x => x.AccountId == accountId)
-                .ApplySort(options.OrderBy, mappingCustomer)
-                //TODO: add filter and search
-                .Skip((options.Page-1) * options.Take)
+                .ApplySort(options.OrderBy, mappingCustomer);
+
+            if (!string.IsNullOrWhiteSpace(options.LastName))
+            {
+                sortedResults = sortedResults
+                    .Where(x => x.LastName.ToLowerInvariant() == options.LastName.Trim().ToLowerInvariant());
+            }
+            //TODO: add other where clauses when more filters are added.
+            if (!string.IsNullOrWhiteSpace(options.Term))
+            {
+                sortedResults = sortedResults
+                    .Where(x => (x.FirstName + " " + x.LastName).ToLowerInvariant().Contains(options.Term.ToLowerInvariant())
+                        || x.EmailAddress.ToLowerInvariant().Contains(options.Term.ToLowerInvariant()));
+            }
+
+            return sortedResults.Skip((options.Page-1) * options.Take)
                 .Take(options.Take)
                 .ToList();
         }

@@ -31,7 +31,11 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
         {
             if (resourceParameters.Page < 1)
             {
-                return new ValidationFailedResult("Page must be 1 or greater.");
+                resourceParameters.Page = 1; //0 is default when not specified
+            }
+            if (resourceParameters.Take == 0)
+            {
+                resourceParameters.Take = 50; //default when value is not specified.
             }
             if (resourceParameters.Take > 250)
             {
@@ -42,8 +46,8 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
 
             var pagination = new PaginationModel
             {
-                Previous = page == 1 ? null : CreateCustomersResourceUri(page-1, take),
-                Next = CreateCustomersResourceUri(page+1, take)
+                Previous = CreateCustomersResourceUri(resourceParameters, -1),
+                Next = CreateCustomersResourceUri(resourceParameters, 1)
             };
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(pagination));
 
@@ -53,11 +57,15 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
 
         private string CreateCustomersResourceUri(CustomerListParameters resourceParameters, int pageAdjust)
         {
+            if (resourceParameters.Page + pageAdjust < 1)
+                return null;
             return _urlHelper.Link("GetCustomers", new
             {
                 take = resourceParameters.Take,
                 page = resourceParameters.Page + pageAdjust,
                 orderBy = resourceParameters.OrderBy,
+                lastName = resourceParameters.LastName,
+                term = resourceParameters.Term
             });
         }
         /// <summary>
