@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Classroom.SimpleCRM.SqlDbServices;
+using System.IO;
 
 namespace Classroom.SimpleCRM.WebApi
 {
@@ -65,17 +66,24 @@ namespace Classroom.SimpleCRM.WebApi
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-
-            app.UseStaticFiles();
-
+                        
             app.UseAuthentication();
 
-            app.UseMvc(routes =>
+            app.Use(async (context, next) =>
             {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                await next();
+                if (context.Response.StatusCode == 404
+                    && !Path.HasExtension(context.Request.Path.Value)
+                    && !context.Request.Path.Value.StartsWith("/api/"))
+                {
+                    context.Request.Path = "/index.html";
+                    await next();
+                }
             });
+
+            app.UseMvcWithDefaultRoute();
+
+            app.UseFileServer();
         }
     }
 }
