@@ -2,6 +2,12 @@
   "version": 3,
   "targets": {
     ".NETCoreApp,Version=v2.0": {
+      "BuildBundlerMinifier/2.6.375": {
+        "type": "package",
+        "build": {
+          "build/BuildBundlerMinifier.targets": {}
+        }
+      },
       "Libuv/1.10.0": {
         "type": "package",
         "dependencies": {
@@ -5103,6 +5109,25 @@
     }
   },
   "libraries": {
+    "BuildBundlerMinifier/2.6.375": {
+      "sha512": "xUPSZvHfNQZY3/4/mvBFSuEZ2cOdxTBm6aIobQyRzVgxEVpyV+G3gT4mN3gO+/ehPOSWVDgER62G5EK1KhXQ4A==",
+      "type": "package",
+      "path": "buildbundlerminifier/2.6.375",
+      "files": [
+        "build/BuildBundlerMinifier.targets",
+        "buildbundlerminifier.2.6.375.nupkg.sha512",
+        "buildbundlerminifier.nuspec",
+        "tools/net46/BundlerMinifier.dll",
+        "tools/net46/NUglify.dll",
+        "tools/net46/Newtonsoft.Json.dll",
+        "tools/netcoreapp2.0/BundlerMinifier.dll",
+        "tools/netcoreapp2.0/NUglify.dll",
+        "tools/netcoreapp2.0/Newtonsoft.Json.dll",
+        "tools/netstandard1.3/BundlerMinifier.dll",
+        "tools/netstandard1.3/NUglify.dll",
+        "tools/netstandard1.3/Newtonsoft.Json.dll"
+      ]
+    },
     "Libuv/1.10.0": {
       "sha512": "GsCf4q+eyaI49rCPlgYxdxa1SQCysXFFdSJWdstrwxytg4+VPYLYrXD4AT2rjHVJ+UF7SSWX9CapWEYaU4ejVQ==",
       "type": "package",
@@ -13326,6 +13351,7 @@
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v2.0": [
+      "BuildBundlerMinifier >= 2.6.375",
       "Classroom.SimpleCRM >= 1.0.0",
       "Classroom.SimpleCRM.SqlDbServices >= 1.0.0",
       "Microsoft.AspNetCore.All >= 2.0.6",
@@ -13403,6 +13429,10 @@
           "Microsoft.AspNetCore.All": {
             "target": "Package",
             "version": "2.0.6"
+          },
+          "BuildBundlerMinifier": {
+            "target": "Package",
+            "version": "2.6.375"
           }
         },
         "imports": [

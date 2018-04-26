@@ -10,7 +10,9 @@
 Classroom.SimpleCRM.WebApi/wwwroot
 
 # dependencies
+/node_modules
 /simple-crm-cli/node_modules
+Classroom.SimpleCRM.WebApi/node_modules
 
 # IDEs and editors
 /.idea
