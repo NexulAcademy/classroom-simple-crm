@@ -8,14 +8,16 @@ using Classroom.SimpleCRM.WebApi.Models;
 
 namespace Classroom.SimpleCRM.WebApi.Controllers
 {
+    [Route("")]
     public class HomeController : Controller
     {
-        [Route("home")]
+        [Route("")]
         public IActionResult Index()
         {
             return View();
         }
 
+        [Route("about")]
         public IActionResult About()
         {
             ViewData["Message"] = "Your application description page.";
@@ -23,6 +25,7 @@ namespace Classroom.SimpleCRM.WebApi.Controllers
             return View();
         }
 
+        [Route("contact")]
         public IActionResult Contact()
         {
             ViewData["Message"] = "Your contact page.";
@@ -30,6 +33,19 @@ namespace Classroom.SimpleCRM.WebApi.Controllers
             return View();
         }
 
+        [Route("corporate")]
+        public IActionResult CorporateClients()
+        {
+            return View();
+        }
+
+        [Route("pricing")]
+        public IActionResult Pricing()
+        {
+            return View();
+        }
+
+        [Route("error")]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
