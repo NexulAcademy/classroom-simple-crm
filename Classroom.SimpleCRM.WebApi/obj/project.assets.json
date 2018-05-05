@@ -5083,6 +5083,9 @@
       "Classroom.SimpleCRM/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v2.0",
+        "dependencies": {
+          "Microsoft.Extensions.Identity.Stores": "2.0.2"
+        },
         "compile": {
           "bin/placeholder/Classroom.SimpleCRM.dll": {}
         },
@@ -5095,8 +5098,10 @@
         "framework": ".NETCoreApp,Version=v2.0",
         "dependencies": {
           "Classroom.SimpleCRM": "1.0.0",
+          "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "2.0.2",
           "Microsoft.EntityFrameworkCore.SqlServer": "2.0.2",
           "Microsoft.EntityFrameworkCore.Tools": "2.0.2",
+          "Microsoft.Extensions.Identity.Stores": "2.0.2",
           "System.Linq.Dynamic.Core": "1.0.8.2"
         },
         "compile": {

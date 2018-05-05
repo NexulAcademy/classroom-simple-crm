@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Classroom.SimpleCRM.WebApi.Data;
-using Classroom.SimpleCRM.WebApi.Models;
 using Classroom.SimpleCRM.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -31,14 +26,20 @@ namespace Classroom.SimpleCRM.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddDbContext<CrmDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            var dbAssemblyName = typeof(CrmIdentityDbContext).Namespace;
+            services.AddDbContext<CrmIdentityDbContext>(options =>
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("DefaultConnection"),
+                    sqlOptions => sqlOptions.MigrationsAssembly(dbAssemblyName)
+                ));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
+            services.AddIdentity<CrmIdentityUser, IdentityRole<Guid>>()
+                .AddEntityFrameworkStores<CrmIdentityDbContext>()
                 .AddDefaultTokenProviders();
+            services.AddAuthentication()
+                .AddCookie(cfg => cfg.SlidingExpiration = true);
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();

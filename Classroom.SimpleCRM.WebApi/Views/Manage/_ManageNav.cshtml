@@ -1,5 +1,5 @@
 ﻿@using Classroom.SimpleCRM.WebApi.Views.Manage
-@inject SignInManager<ApplicationUser> SignInManager
+@inject SignInManager<CrmIdentityUser> SignInManager
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
 }
