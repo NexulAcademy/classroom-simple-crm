@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Classroom.SimpleCRM.SqlDbServices;
 using System.IO;
+using Classroom.SimpleCRM.WebApi.Auth;
 
 namespace Classroom.SimpleCRM.WebApi
 {
@@ -35,11 +36,23 @@ namespace Classroom.SimpleCRM.WebApi
                     sqlOptions => sqlOptions.MigrationsAssembly(dbAssemblyName)
                 ));
 
+            var googleOptions = Configuration.GetSection(nameof(GoogleAuthSettings));
+            services.Configure<GoogleAuthSettings>(options =>
+            {
+                options.ClientId = googleOptions[nameof(GoogleAuthSettings.ClientId)];
+                options.ClientSecret = googleOptions[nameof(GoogleAuthSettings.ClientSecret)];
+            });
+
             services.AddIdentity<CrmIdentityUser, IdentityRole<Guid>>()
                 .AddEntityFrameworkStores<CrmIdentityDbContext>()
                 .AddDefaultTokenProviders();
             services.AddAuthentication()
-                .AddCookie(cfg => cfg.SlidingExpiration = true);
+                .AddCookie(cfg => cfg.SlidingExpiration = true)
+                .AddGoogle(options =>
+                {
+                    options.ClientId = googleOptions[nameof(GoogleAuthSettings.ClientId)];
+                    options.ClientSecret = googleOptions[nameof(GoogleAuthSettings.ClientSecret)];
+                });
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
