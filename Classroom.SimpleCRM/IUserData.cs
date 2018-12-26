@@ -4,7 +4,7 @@ namespace Classroom.SimpleCRM
 {
     public interface IUserData
     {
-        CrmIdentityUser Get(Guid id);
+        CrmIdentityUser Get(string id);
         CrmIdentityUser GetSingle(string userName);
     }
 }

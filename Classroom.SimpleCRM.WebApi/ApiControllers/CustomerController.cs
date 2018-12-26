@@ -5,10 +5,12 @@ using Classroom.SimpleCRM.WebApi.Models.Customers;
 using Classroom.SimpleCRM.WebApi.Filters;
 using Classroom.SimpleCRM.WebApi.Models;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Classroom.SimpleCRM.WebApi.ApiControllers
 {
     [Route("api/customers")]
+    [Authorize(Policy = "ApiUser")]
     public class CustomerController : Controller
     {
         private readonly ICustomerData _customerData;

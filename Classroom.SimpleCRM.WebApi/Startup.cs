@@ -1,28 +1,34 @@
-﻿using System;
+﻿using Classroom.SimpleCRM.WebApi.Services;
+using Classroom.SimpleCRM.SqlDbServices;
+using Classroom.SimpleCRM.WebApi.Auth;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Classroom.SimpleCRM.WebApi.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Classroom.SimpleCRM.SqlDbServices;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System;
 using System.IO;
-using Classroom.SimpleCRM.WebApi.Auth;
+using System.Text;
 
 namespace Classroom.SimpleCRM.WebApi
 {
     public class Startup
     {
+        private const string SecretKey = "sdkdhsHOQPdjspQNSHsjsSDQWJqzkpdnf";
+        private readonly SymmetricSecurityKey _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
+
+        public IConfiguration Configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -50,23 +56,52 @@ namespace Classroom.SimpleCRM.WebApi
                 options.ClientSecret = microsoftOptions[nameof(MicrosoftAuthSettings.ClientSecret)];
             });
 
-            services.AddIdentity<CrmIdentityUser, IdentityRole<Guid>>()
-                .AddEntityFrameworkStores<CrmIdentityDbContext>()
-                .AddDefaultTokenProviders();
-            services.AddAuthentication()
-                .AddCookie(cfg => cfg.SlidingExpiration = true)
-                .AddGoogle(options =>
-                {
-                    options.ClientId = googleOptions[nameof(GoogleAuthSettings.ClientId)];
-                    options.ClientSecret = googleOptions[nameof(GoogleAuthSettings.ClientSecret)];
-                })
-                .AddMicrosoftAccount(options =>
-                {
-                    options.ClientId = microsoftOptions[nameof(MicrosoftAuthSettings.ClientId)];
-                    options.ClientSecret = microsoftOptions[nameof(MicrosoftAuthSettings.ClientSecret)];
-                });
+            var jwtOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
+            services.Configure<JwtIssuerOptions>(options =>
+            {
+                options.Issuer = jwtOptions[nameof(JwtIssuerOptions.Issuer)];
+                options.Audience = jwtOptions[nameof(JwtIssuerOptions.Audience)];
+                options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
+            });
+            var tokenValidationPrms = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = jwtOptions[nameof(JwtIssuerOptions.Issuer)],
+                ValidateAudience = true,
+                ValidAudience = jwtOptions[nameof(JwtIssuerOptions.Audience)],
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = _signingKey,
+                RequireExpirationTime = false,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(configureOptions =>
+            {
+                configureOptions.ClaimsIssuer = jwtOptions[nameof(JwtIssuerOptions.Issuer)];
+                configureOptions.TokenValidationParameters = tokenValidationPrms;
+                configureOptions.SaveToken = true;
+            });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("ApiUser", policy => policy.RequireClaim(Constants.JwtClaimIdentifiers.Rol, Constants.JwtClaims.ApiAccess));
+            });
+
+            var identityBuilder = services.AddIdentityCore<CrmIdentityUser>(o => {
+                //TODO: override any default password rules here.
+            });
+            identityBuilder = new IdentityBuilder(identityBuilder.UserType, typeof(IdentityRole), identityBuilder.Services);
+            identityBuilder.AddEntityFrameworkStores<CrmIdentityDbContext>();
+            identityBuilder.AddRoleValidator<RoleValidator<IdentityRole>>();
+            identityBuilder.AddRoleManager<RoleManager<IdentityRole>>();
+            identityBuilder.AddSignInManager<SignInManager<CrmIdentityUser>>();
+            identityBuilder.AddDefaultTokenProviders();
 
             // Add application services.
+            services.AddSingleton<IJwtFactory, JwtFactory>();
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddScoped<ICustomerData, SqlCustomerData>();
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();

@@ -12,7 +12,7 @@ namespace Classroom.SimpleCRM.SqlDbServices
             this.context = context;
         }
 
-        public CrmIdentityUser Get(Guid id)
+        public CrmIdentityUser Get(string id)
         {
             return context.Users.FirstOrDefault(x => x.Id == id);
         }
