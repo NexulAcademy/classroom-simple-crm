@@ -84,7 +84,7 @@ Thumbs.db
 *.dotCover
 Classroom.SimpleCRM/obj/
 Classroom.SimpleCRM.SqlDbServices/obj/
-Classroom.SimpleCRM.MvcWeb/obj/
+Classroom.SimpleCRM.WebApi/obj/
 Classroom.SimpleCRM/bin/
 Classroom.SimpleCRM.SqlDbServices/bin/
-Classroom.SimpleCRM.MvcWeb/bin/
+Classroom.SimpleCRM.WebApi/bin/
