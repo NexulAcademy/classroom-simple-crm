@@ -1,11 +1,16 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Classroom.SimpleCRM.WebApi.Auth;
 using Classroom.SimpleCRM.WebApi.Filters;
 using Classroom.SimpleCRM.WebApi.Models;
 using Classroom.SimpleCRM.WebApi.Models.Auth;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Classroom.SimpleCRM.WebApi.ApiControllers
 {
@@ -13,12 +18,84 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
     {
         private readonly UserManager<CrmIdentityUser> _userManager;
         private readonly IJwtFactory _jwtFactory;
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<AuthController> _logger;
+        private readonly MicrosoftAuthSettings _microsoftAuthSettings;
 
         public AuthController(UserManager<CrmIdentityUser> userManager,
-            IJwtFactory jwtFactory)
+            IJwtFactory jwtFactory,
+            IConfiguration configuration,
+            ILogger<AuthController> logger,
+            IOptions<MicrosoftAuthSettings> microsoftAuthSettings)
         {
             _userManager = userManager;
             _jwtFactory = jwtFactory;
+            _configuration = configuration;
+            _logger = logger;
+            _microsoftAuthSettings = microsoftAuthSettings.Value;
+        }
+
+        [HttpGet("external/microsoft")]
+        public IActionResult GetMicrosoft()
+        {
+            return Ok(new
+            {   //this is the public application id, don't return the secret 'Password' here!
+                client_id = _microsoftAuthSettings.ClientId,
+                scope = "https://graph.microsoft.com/user.read",
+                state = "" //arbitrary state to return again for this user
+            });
+        }
+
+        [HttpPost("external/microsoft")]
+        public async Task<IActionResult> PostMicrosoft([FromBody]MicrosoftAuthViewModel model)
+        {
+            var verifier = new MicrosoftAuthVerifier<AuthController>(_microsoftAuthSettings, _configuration["HttpHost"] + (model.BaseHref ?? "/"), _logger);
+            var profile = await verifier.AcquireUser(model.AccessToken);
+
+            if (!profile.IsSuccessful)
+            {
+                _logger.LogWarning("ExternalLoginCallback() unknown error at external login provider, {profile.Error.Message}", profile.Error.Message);
+                return new ValidationFailedResult(profile.Error.Message, StatusCodes.Status400BadRequest);
+            }
+            var info = new UserLoginInfo("Microsoft", profile.Id, "Microsoft");
+            if (info == null || info.ProviderKey == null || info.LoginProvider == null)
+            {
+                _logger.LogWarning("ExternalLoginCallback() unknown error at external login provider");
+                return new ValidationFailedResult("Unknown error at external login provider", StatusCodes.Status400BadRequest);
+            }
+
+            if (string.IsNullOrWhiteSpace(profile.Mail))
+            {
+                return new ValidationFailedResult("Email address not available from Login provider, cannot proceed.", StatusCodes.Status403Forbidden);
+            }
+
+            // ready to create the local user account (if necessary) and jwt
+            var user = await _userManager.FindByEmailAsync(profile.Mail);
+            if (user == null)
+            {
+                var appUser = new CrmIdentityUser
+                {
+                    Name = profile.DisplayName,
+                    Email = profile.Mail,
+                    UserName = profile.Mail,
+                    PhoneNumber = profile.MobilePhone
+                };
+
+                var identityResult = await _userManager.CreateAsync(appUser, Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Substring(0, 8) + "#");
+                if (!identityResult.Succeeded)
+                {
+                    return new ValidationFailedResult("Could not create user.", StatusCodes.Status400BadRequest);
+                }
+
+                user = await _userManager.FindByEmailAsync(profile.Mail);
+                if (user == null)
+                {
+                    return new ValidationFailedResult("Failed to create local user account.", StatusCodes.Status400BadRequest);
+                }
+            }
+
+            var userModel = await GetUserData(user);
+            return Ok(userModel);
         }
 
         [HttpPost("login")]
