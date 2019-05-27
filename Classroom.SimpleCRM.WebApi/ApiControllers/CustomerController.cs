@@ -27,8 +27,8 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
         /// Gets all customers visible in the account of the current user
         /// </summary>
         /// <returns></returns>
-        [Route("")] //  ./api/customers
-        [HttpGet(Name = "GetCustomers")]
+        //[Route("")] //  ./api/customers
+        [HttpGet("", Name = "GetCustomers")]
         public IActionResult GetCustomers([FromQuery]CustomerListParameters resourceParameters)
         {
             if (resourceParameters.Page < 1)

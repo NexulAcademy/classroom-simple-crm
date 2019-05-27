@@ -15,6 +15,10 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IO;
 using System.Text;
+using NSwag.SwaggerGeneration.Processors.Security;
+using NSwag;
+using NSwag.AspNetCore;
+using System.Collections.Generic;
 
 namespace Classroom.SimpleCRM.WebApi
 {
@@ -93,10 +97,10 @@ namespace Classroom.SimpleCRM.WebApi
             var identityBuilder = services.AddIdentityCore<CrmIdentityUser>(o => {
                 //TODO: override any default password rules here.
             });
-            identityBuilder = new IdentityBuilder(identityBuilder.UserType, typeof(IdentityRole), identityBuilder.Services);
+            identityBuilder = new IdentityBuilder(identityBuilder.UserType, typeof(IdentityRole<string>), identityBuilder.Services);
             identityBuilder.AddEntityFrameworkStores<CrmIdentityDbContext>();
-            identityBuilder.AddRoleValidator<RoleValidator<IdentityRole>>();
-            identityBuilder.AddRoleManager<RoleManager<IdentityRole>>();
+            identityBuilder.AddRoleValidator<RoleValidator<IdentityRole<string>>>();
+            identityBuilder.AddRoleManager<RoleManager<IdentityRole<string>>>();
             identityBuilder.AddSignInManager<SignInManager<CrmIdentityUser>>();
             identityBuilder.AddDefaultTokenProviders();
 
@@ -112,6 +116,24 @@ namespace Classroom.SimpleCRM.WebApi
             });
 
             services.AddMvc();
+            services.AddOpenApiDocument(options =>
+            {
+                options.DocumentName = "v1";
+                options.Title = "Simple CRM";
+                options.Version = "1.0";
+                options.DocumentProcessors.Add(new SecurityDefinitionAppender("JWT token",
+                    new List<string>(), //no scope names to add
+                    new SwaggerSecurityScheme
+                    {
+                        Type = SwaggerSecuritySchemeType.ApiKey,
+                        Name = "Authorization",
+                        Description = "Type into the textbox: 'Bearer {your_JWT_token}'. You can get a JWT from endpoints: '/auth/register' or '/auth/login'",
+                        In = SwaggerSecurityApiKeyLocation.Header
+                    }
+                ));
+                options.OperationProcessors.Add(
+                    new OperationSecurityScopeProcessor("JWT token"));
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -129,6 +151,18 @@ namespace Classroom.SimpleCRM.WebApi
             }
                         
             app.UseAuthentication();
+            app.UseSwagger();
+            app.UseSwaggerUi3(settings =>
+            {
+                var microsoftOptions = Configuration.GetSection(nameof(MicrosoftAuthSettings));
+                settings.OAuth2Client = new OAuth2ClientSettings
+                {
+                    ClientId = microsoftOptions[nameof(MicrosoftAuthSettings.ClientId)],
+                    ClientSecret = microsoftOptions[nameof(MicrosoftAuthSettings.ClientSecret)],
+                    AppName = "Simple CRM",
+                    Realm = "Nexul Academy"
+                };
+            });
 
             app.Use(async (context, next) =>
             {
