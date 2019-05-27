@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Classroom.SimpleCRM.WebApi.Auth;
 using Classroom.SimpleCRM.WebApi.Filters;
 using Classroom.SimpleCRM.WebApi.Models;
+using Classroom.SimpleCRM.WebApi.Models.AccountViewModels;
 using Classroom.SimpleCRM.WebApi.Models.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -110,7 +111,7 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
             var user = await Authenticate(credentials.EmailAddress, credentials.Password);
             if (user == null)
             {
-                return new ValidationFailedResult("Invalid username or password.");
+                return new ValidationFailedResult("Invalid username or password.", 401);
             }
 
             var userModel = await GetUserData(user);
@@ -134,6 +135,30 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
             }
 
             return Forbid();
+        }
+
+        [HttpPost]
+        [Route("register")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Register([FromBody]RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return new ValidationFailedResult(ModelState);
+            }
+
+            var user = new CrmIdentityUser { UserName = model.Email, Email = model.Email };
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if (!result.Succeeded)
+            {
+                return new ValidationFailedResult(result.Errors.Select(x => x.Description));
+            }
+
+            _logger.LogInformation("User created a new account with password.");
+            var identity = await Authenticate(model.Email, model.Password);
+
+            var userModel = await GetUserData(identity);
+            return Ok(userModel);
         }
 
         private async Task<CrmIdentityUser> Authenticate(string emailAddress, string password)
