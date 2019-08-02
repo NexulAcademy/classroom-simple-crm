@@ -115,6 +115,8 @@ namespace Classroom.SimpleCRM.WebApi
                 return new UrlHelper(context);
             });
 
+            services.AddResponseCaching();
+
             services.AddMvc();
             services.AddOpenApiDocument(options =>
             {
@@ -163,6 +165,8 @@ namespace Classroom.SimpleCRM.WebApi
                     Realm = "Nexul Academy"
                 };
             });
+
+            app.UseResponseCaching();
 
             app.Use(async (context, next) =>
             {

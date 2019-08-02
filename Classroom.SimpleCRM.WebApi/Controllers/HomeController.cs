@@ -17,6 +17,7 @@ namespace Classroom.SimpleCRM.WebApi.Controllers
             return View();
         }
 
+        [ResponseCache(Duration = 30, Location = ResponseCacheLocation.Any)]
         [Route("about")]
         public IActionResult About()
         {
