@@ -19,6 +19,9 @@ using NSwag.SwaggerGeneration.Processors.Security;
 using NSwag;
 using NSwag.AspNetCore;
 using System.Collections.Generic;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
 
 namespace Classroom.SimpleCRM.WebApi
 {
@@ -117,7 +120,17 @@ namespace Classroom.SimpleCRM.WebApi
 
             services.AddResponseCaching();
 
-            services.AddMvc();
+            services.AddMvc()
+                .AddJsonOptions(options =>
+                {
+                    var settings = options.SerializerSettings;
+                    settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                    settings.Converters = new JsonConverter[]
+                    {
+                        new IsoDateTimeConverter(),
+                        new StringEnumConverter(true)
+                    };
+                });
             services.AddOpenApiDocument(options =>
             {
                 options.DocumentName = "v1";
