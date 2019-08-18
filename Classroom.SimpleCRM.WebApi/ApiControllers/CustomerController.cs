@@ -6,6 +6,7 @@ using Classroom.SimpleCRM.WebApi.Filters;
 using Classroom.SimpleCRM.WebApi.Models;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
 
 namespace Classroom.SimpleCRM.WebApi.ApiControllers
 {
@@ -14,12 +15,15 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
     public class CustomerController : Controller
     {
         private readonly ICustomerData _customerData;
+        private readonly ILogger<AuthController> _logger;
         private readonly IUrlHelper _urlHelper;
 
         public CustomerController(ICustomerData customerData,
+            ILogger<AuthController> logger,
             IUrlHelper urlHelper)
         {
             _customerData = customerData;
+            _logger = logger;
             _urlHelper = urlHelper;
         }
 
@@ -41,6 +45,7 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
             }
             if (resourceParameters.Take > 250)
             {
+                _logger.LogError("Get Customers max items exceeded.");
                 return new ValidationFailedResult("A request can only take maximum of 250 items.");
             }
 
@@ -84,6 +89,7 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
             var customer = _customerData.Get(id);
             if (customer == null)
             {
+                _logger.LogWarning("Customer {0} not found", id);
                 return NotFound();
             }
             Response.Headers.Add("ETag", "\"" + customer.LastContactDate.ToString() + "\"");
@@ -99,6 +105,7 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
             }
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning ("Customer Create failed due to validation");
                 return new ValidationFailedResult(ModelState);
             }
 
@@ -127,19 +134,24 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
             }
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Customer Update failed due to validation");
                 return new ValidationFailedResult(ModelState);
             }
 
             var customer = _customerData.Get(id);
             if (customer == null)
             {
+                _logger.LogWarning("Customer {0} not found", id);
                 return NotFound();
             }
             string ifMatch = Request.Headers["If-Match"];
             if (ifMatch != customer.LastContactDate.ToString())
             {
+                _logger.LogInformation("Customer update failed due to concurrency issue: {0}", id);
                 return StatusCode(422, "Customer has been changed by another user since it was loaded. Reload and try again.");
             }
+
+            // TODO: ensure User owns this customer record, else return 403.
 
             //update only editable properties from model
             customer.EmailAddress = model.EmailAddress;
@@ -159,9 +171,13 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
             var customer = _customerData.Get(id);
             if (customer == null)
             {
+                _logger.LogWarning("Customer {0} not found", id);
                 return NotFound();
             }
 
+            // TODO: ensure User owns this customer record, else return 403.
+
+            _logger.LogInformation("Deleting customer: {0}", id);
             _customerData.Delete(customer);
             _customerData.Commit();
             return NoContent();
