@@ -125,6 +125,13 @@ namespace Classroom.SimpleCRM.WebApi
             {
                 o.Filters.Add(typeof(GlobalExceptionFilter));
             })
+            .ConfigureApiBehaviorOptions(options =>
+            {
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    return new ValidationFailedResult(context.ModelState);
+                };
+            })
             .AddJsonOptions(options =>
             {
                 var settings = options.SerializerSettings;

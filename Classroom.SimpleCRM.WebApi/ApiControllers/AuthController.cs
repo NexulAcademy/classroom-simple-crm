@@ -103,11 +103,6 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
         [HttpPost("login")]
         public async Task<IActionResult> Post([FromBody]CredentialsViewModel credentials)
         {
-            if (!ModelState.IsValid)
-            {
-                return new ValidationFailedResult(ModelState);
-            }
-
             var user = await Authenticate(credentials.EmailAddress, credentials.Password);
             if (user == null)
             {
@@ -142,11 +137,6 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody]RegisterViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return new ValidationFailedResult(ModelState);
-            }
-
             var user = new CrmIdentityUser { UserName = model.Email, Email = model.Email };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)

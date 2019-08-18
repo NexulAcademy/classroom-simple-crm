@@ -99,16 +99,6 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
         [HttpPost("")] //  ./api/customers
         public IActionResult Create([FromBody]CustomerCreateViewModel model)
         {
-            if (model == null)
-            {
-                return BadRequest();
-            }
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning ("Customer Create failed due to validation");
-                return new ValidationFailedResult(ModelState);
-            }
-
             var customer = new Customer
             {
                 FirstName = model.FirstName,
@@ -128,16 +118,6 @@ namespace Classroom.SimpleCRM.WebApi.ApiControllers
         [HttpPut("{id}")] //  ./api/customers/:id
         public IActionResult Update(int id, [FromBody]CustomerUpdateViewModel model)
         {
-            if (model == null)
-            {
-                return BadRequest();
-            }
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Customer Update failed due to validation");
-                return new ValidationFailedResult(ModelState);
-            }
-
             var customer = _customerData.Get(id);
             if (customer == null)
             {
